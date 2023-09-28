@@ -1,19 +1,7 @@
 NUM_CHARS = 5
 
-# Input code on how much stuff
-"""
-try:
-    n = int(input())
-    myList = []
-    for i in range(n):
-        element = input()
-        myList.append(element)
-    print('List :', myList)
-except ValueError:
-    print('You entered an invalid input')
-"""
 
-
+# Updates the list of banned characters
 def update_banned_characters(banned_chars: list) -> list:
     try:
         print("Enter characters combined as a string")
@@ -33,7 +21,7 @@ def update_banned_characters(banned_chars: list) -> list:
     except RuntimeError:
         print("Cancelling process")
 
-
+# Updates the placements of characters
 def update_placements(banned_chars: list) -> str:
     try:
         print("Enter characters known and _ representing unknown characters")
@@ -58,8 +46,7 @@ def update_placements(banned_chars: list) -> str:
     except RuntimeError:
         print("Cancelling process")
 
-
-
+# Updates the somewhere dictionary
 def update_somewhere(somewhere: dict) -> dict:
     try:
         print("Enter character next to indices it is not in (0 indexing)")
@@ -84,15 +71,38 @@ def update_somewhere(somewhere: dict) -> dict:
     except RuntimeError:
         print("Cancelling process")
 
-def print_everything(banned_chars: list, placements: str, somewhere: dict):
+# Prints everything: banned characters, placements, somewhere dict
+def print_data(banned_chars: list, placements: str, somewhere: dict):
     print(
         "Banned characters: " + str(banned_chars) + "\n" +
         "Placements: " + placements + "\n" +
         "Somewhere: " + str(somewhere)
     )
 
-def get_word():
-    None
+# Logic to compute possible words and output possible words
+def get_word(banned_chars: list, placements: str, somewhere: dict, all_words: list):
+    possible_words = []
+    for word in all_words:
+        # If none of the chars in all_words is in banned_chars
+        if not any(char in word for char in banned_chars):
+
+            # If the placements of "_" match the placements of the word
+            skip = False
+            for i in range(len(word)):
+                if placements[i] != "_" and placements[i] != word[i]:
+                    skip = True
+            if not skip:
+                keep = True
+                somewhere_letters = list(somewhere.keys())
+                for letter in somewhere_letters:
+                    for letter_index in somewhere[letter]:
+                        #if word doesnt have that character and that character is not in the indices
+                        if letter not in word or word[letter_index] == letter:
+                            keep = False
+                if keep:
+                    possible_words.append(word)
+    
+    print("Possible words: " + str(possible_words))
 
 def main():
     # A list of banned characters. Each is a string in the list
@@ -105,13 +115,29 @@ def main():
     # The key is the character, value is list of indices it is not in
     somewhere = {}
 
+    # A list of all five letter words in dictionary
+    # Using dictionary from /usr/share/dict/web2
+    word_path = "/usr/share/dict/web2"
+    all_five_letter_words = []
+
+    all_words = open(word_path).read().splitlines()
+
+    for i in all_words:
+        if len(i) == 5:
+            all_five_letter_words.append(i.lower())
+    
+    all_five_letter_words = list(set(all_five_letter_words))
+
     # Handler code to see which action to take
     while True:
         try:
-            print("""Enter 1 to update banned characters,
+            print("""
+            Enter 1 to update banned characters,
             2 to update placements,
             3 to update somewhere,
-            4 to print everything""")
+            4 to print data,
+            5 to get possible words,
+            0 to terminate program""")
             action = int(input())
             if action == 1:
                 banned_characters = update_banned_characters(banned_characters)
@@ -120,7 +146,11 @@ def main():
             elif action == 3:
                 somwehere = update_somewhere(somewhere)
             elif action == 4:
-                print_everything(banned_characters, placements, somewhere)
+                print_data(banned_characters, placements, somewhere)
+            elif action == 5:
+                get_word(banned_characters, placements, somewhere, all_five_letter_words)
+            elif action == 0:
+                break
             else:
                 raise ValueError
         except ValueError:
