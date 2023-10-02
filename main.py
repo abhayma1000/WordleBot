@@ -2,12 +2,12 @@ NUM_CHARS = 5
 
 
 # Updates the list of banned characters
-def update_banned_characters(banned_chars: list) -> list:
+def update_banned_characters(banned_chars: list, placements: str) -> list:
     try:
         print("Enter characters combined as a string")
         element = input()
         for i in element:
-            if i.isalpha() and i not in banned_chars:
+            if i.isalpha() and i not in banned_chars and i not in placements:
                 banned_chars.append(i.lower())
         print("Enter 0 to ignore, 1 to continue")
         stop = int(input())
@@ -140,7 +140,7 @@ def main():
             0 to terminate program""")
             action = int(input())
             if action == 1:
-                banned_characters = update_banned_characters(banned_characters)
+                banned_characters = update_banned_characters(banned_characters, placements)
             elif action == 2:
                 placements = update_placements(banned_characters)
             elif action == 3:
